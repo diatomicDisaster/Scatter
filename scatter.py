@@ -55,10 +55,15 @@ for particle in range(10):
         else:
             sumPath += cellPath
             posVec  += cellPath*propVec
+        # Stop if we're outside the grid
         if not all([0 <= thisCell[i] <= gridSize[i] for i in range(3)]):
             inGrid = False
+
+    # Stuff for plotting to check
     points = array(plotPoints).T
     ax.plot(points[0], points[1], points[2])
+
+# Stuff for plotting to check
 ax.set_xlim(0, gridSize[0])
 ax.set_ylim(0, gridSize[1])
 ax.set_zlim(0, gridSize[2])
