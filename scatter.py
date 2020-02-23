@@ -1,6 +1,6 @@
 from numpy.random import uniform, normal
 from numpy import multiply, array, pi, floor, inner, sin, cos, float64, append,\
-    empty, zeros, fromfunction, flip
+    empty, zeros, fromfunction, flip, ones_like
 
 # Dev libs
 from numpy import indices
@@ -40,12 +40,13 @@ class Cells:
         return p0*(1 - L*k/(self.gS[2]-1)/T0)**(g*M/(8.31447*L))
     # Constant C(z) = 1
     def constant(self, i, j, k):
-        return 1.
+        return ones_like(k)
 
 # Cells initialised by instance of 'Cells' class
 # The C(z) function is chosen to be the "pressure" case
 grid = Cells(gridSize)
 grid.fill("pressure", p0=1, T0=1, g=1, L=1, M=8.31447)
+#grid.fill("constant")
 
 # Plot C(z) function for checking
 fig = plt.figure(1)
