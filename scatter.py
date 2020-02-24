@@ -2,7 +2,7 @@ from numpy.random import uniform, normal
 from numpy import multiply, array, pi, floor, inner, sin, cos, float64, append,\
     empty, zeros, fromfunction, flip, ones_like
 
-# Dev libs
+# Dev libraries
 from numpy import indices
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
