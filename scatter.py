@@ -3,6 +3,8 @@ from numpy import multiply, array, pi, floor, inner, sin, cos, float64, append,\
     empty, zeros, fromfunction, flip, ones_like
 
 #### WILF S'IL TE PLAIT, TA GUEULE :)
+#### por qué? no quiero. Puta vida!
+
 # Dev libraries
 from numpy import indices
 import matplotlib.pyplot as plt
