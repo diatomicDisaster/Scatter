@@ -2,16 +2,17 @@ from numpy.random import uniform, normal
 from numpy import multiply, array, pi, floor, inner, sin, cos, float64, append,\
     empty, zeros, fromfunction, flip, ones_like
 
+#### WILF S'IL TE PLAIT, TA GUEULE :)
 # Dev libraries
 from numpy import indices
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from time import process_time
 
-gridSize = array([10, 10, 10])
+gridSize = array([100, 100, 100])
 stopLen = 5.
 maxSteps = 1000
-nParts = 10
+nParts = 10000
 
 class Cells:
     # Initialise cells with grid size (Nx, Ny, Nz)
@@ -49,16 +50,16 @@ grid.fill("pressure", p0=1, T0=1, g=1, L=1, M=8.31447)
 #grid.fill("constant")
 
 # Plot C(z) function for checking
-fig = plt.figure(1)
-ax = fig.gca(projection='3d')
-gridInds = indices(gridSize)+0.5
-p = ax.scatter(gridInds[0], gridInds[1], gridInds[2], c=grid.abs.flatten(), marker='o')
-fig.colorbar(p)
-ax.set_xlim(0, gridSize[0])
-ax.set_ylim(0, gridSize[1])
-ax.set_zlim(0, gridSize[2])
-plt.savefig('C(z).png')
-plt.show()
+# fig = plt.figure(1)
+# ax = fig.gca(projection='3d')
+# gridInds = indices(gridSize)+0.5
+# p = ax.scatter(gridInds[0], gridInds[1], gridInds[2], c=grid.abs.flatten(), marker='o')
+# fig.colorbar(p)
+# ax.set_xlim(0, gridSize[0])
+# ax.set_ylim(0, gridSize[1])
+# ax.set_zlim(0, gridSize[2])
+# plt.savefig('C(z).png')
+# plt.show()
 
 # Prepare figure for particles plot
 fig = plt.figure(2)
@@ -81,7 +82,7 @@ for particle in range(nParts):
         nStep += 1
         plotPoints.append(posVec.copy())
         thisCell = floor(posVec) # Retrieve cell x, y, z indices
-        topCell  = thisCell +1 # Retrieve n + 1 cell
+        topCell  = thisCell  +1 # Retrieve n + 1 cell
         # Find cell exit point
         cellPath = float('inf')
         for pointInd, wallPoint in enumerate([thisCell, topCell]):
