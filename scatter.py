@@ -52,16 +52,16 @@ grid.fill("pressure", p0=1, T0=1, g=1, L=1, M=8.31447)
 #grid.fill("constant")
 
 # Plot C(z) function for checking
-# fig = plt.figure(1)
-# ax = fig.gca(projection='3d')
-# gridInds = indices(gridSize)+0.5
-# p = ax.scatter(gridInds[0], gridInds[1], gridInds[2], c=grid.abs.flatten(), marker='o')
-# fig.colorbar(p)
-# ax.set_xlim(0, gridSize[0])
-# ax.set_ylim(0, gridSize[1])
-# ax.set_zlim(0, gridSize[2])
-# plt.savefig('C(z).png')
-# plt.show()
+fig = plt.figure(1)
+ax = fig.gca(projection='3d')
+gridInds = indices(gridSize)+0.5
+p = ax.scatter(gridInds[0], gridInds[1], gridInds[2], c=grid.abs.flatten(), marker='o')
+fig.colorbar(p)
+ax.set_xlim(0, gridSize[0])
+ax.set_ylim(0, gridSize[1])
+ax.set_zlim(0, gridSize[2])
+plt.savefig('C(z).png')
+plt.show()
 
 # Prepare figure for particles plot
 fig = plt.figure(2)
