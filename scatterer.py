@@ -161,7 +161,7 @@ class Scatter:
 # A dictionary of molecules
 moleculeDict = {
     "arb": Molecule(name = "arbitrary") # arbitrary molecules
-
+    }
 # Define a 100 x 100 x 100 grid with default molecules
 gridA = Grid(grid_size=(100,100,100))
 
