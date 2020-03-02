@@ -103,8 +103,9 @@ class Scatter:
                 self.pos_vec[n_step] = np.array([np.nan, np.nan, np.nan])
                 break
             stop_len = float('inf')
+            grad = self.prp_vec < 0
             for p in range(2): # iterate over cell point (0,0,0) and (1,1,1)
-                p0 = self._cell + p
+                p0 = self._cell + p*(1 - 2*p*grad)
                 for n in range(3): # iterate over x,y,z normal vectors 
                     norm    = np.array([0.,0.,0.], dtype=np.float64)
                     norm[n] = 1.
