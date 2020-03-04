@@ -92,18 +92,20 @@ class Scatter:
         self.pos_vec     = np.full((max_step+1, 3), np.nan)
         self.pos_vec[0]  = np.append(rand[0], 0.) * self.grid.grid_size
         self.prp_vec     = self._pol_to_cart(np.insert(rand[1]*np.array([.25, 2.])*np.pi,  0, 1.))
-        self.max_tau     = -np.log(1 - self._rand.uniform()) # integrated path length
-        self.sum_tau     = 0.
+        self.max_tau     = -np.log(1 - self._rand.uniform()) # draw a random integrated optical path length [0, infty]
+        self.sum_tau     = 0. # summation of traversed optical path length
         
         self.left_grid = False
         for n_step in range(max_step):
             self._cell = np.floor(self.pos_vec[n_step]).astype(int) # x,y,z indices of cell
+            # Check we are still in the grid
             if (any(0 > self._cell)) or any(self._cell >= self.grid.grid_size):
                 self.left_grid = True
                 self.pos_vec[n_step] = np.array([np.nan, np.nan, np.nan])
                 break
             stop_len = float('inf')
             grad = self.prp_vec < 0
+            # Iterate over cell walls to find exit point
             for p in range(2): # iterate over cell point (0,0,0) and (1,1,1)
                 p0 = self._cell + p*(1 - 2*p*grad)
                 for n in range(3): # iterate over x,y,z normal vectors 
@@ -114,14 +116,13 @@ class Scatter:
                     # shortest positive intercept distance is exit point
                     if 0. < test_len < stop_len:
                         stop_len = test_len
-            beta_ext   = self.grid.abs_grid[tuple(self._cell)]
-            self.sum_tau += stop_len*beta_ext
-            # check whether max_tau is reached along this path
-            if self.sum_tau >= self.max_tau:
-                stop_len = (self.sum_tau - self.max_tau)/beta_ext
+            beta_ext   = self.grid.abs_grid[tuple(self._cell)]  # integrate beta along path length
+            self.sum_tau += stop_len*beta_ext # add to summation
+            if self.sum_tau >= self.max_tau: # check if max_tau is reached along this path
+                stop_len = (self.sum_tau - self.max_tau)/beta_ext # shorten stop length
                 self.sum_tau = self.max_tau
             self.pos_vec[n_step + 1] = self.pos_vec[n_step] + stop_len*self.prp_vec
-            if self.sum_tau is self.max_tau:
+            if self.sum_tau is self.max_tau: # scatter if scattering optical depth reached
                 self._scatter()
     
     def _pol_to_cart(self, pol_vec):
@@ -143,10 +144,11 @@ class Scatter:
         return np.array([r, theta, phi])
         
     def _scatter(self):
-        """Scatter the photon from a molecule following some phase function"""
-        rand_mol  = np.random.randint(0, high=len(self.grid.molecules))
-        theta_, phi_ = self.grid.molecules[rand_mol].phase_func()
-        new_prp_ = self._pol_to_cart(np.array([1., theta_, phi_]))
+        """Scatter the photon from a molecule, along a new propagation vector.
+        Scattering angle defined by the a random molecule's phase function."""
+        rand_mol  = np.random.randint(0, high=len(self.grid.molecules)) # select random molecules
+        theta_, phi_ = self.grid.molecules[rand_mol].phase_func() # calculate scattering angle
+        new_prp_ = self._pol_to_cart(np.array([1., theta_, phi_])) # new propagation vector k'
         r, theta, phi = self._cart_to_pol(self.prp_vec)
         Ry = np.array([[np.cos(theta), 0., np.sin(theta)],
                        [0., 1., 0.],
@@ -154,7 +156,7 @@ class Scatter:
         Rz = np.array([[np.cos(phi), -np.sin(phi), 0.],
                        [np.sin(phi), np.cos(phi), 0.],
                        [0., 0., 1.]])
-        new_prp = np.dot(Rz, np.dot(Ry, new_prp_))
+        new_prp = np.dot(Rz, np.dot(Ry, new_prp_)) # transform k' from k=z to global Cartesian frame
         self.prp_vec = new_prp
         self.sum_tau = 0.
         return self
