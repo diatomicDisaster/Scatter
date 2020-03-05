@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import time
-start_time = time.time()
-
 
 # Possibly needs to become an inherited class to
 # allow for different phase functions. Need to think about this.
@@ -141,6 +139,7 @@ class Scatter:
                 self.sum_abs = self.max_abs
             self.pos_vec[n_step + 1] = self.pos_vec[n_step] + stop_len*self.prp_vec
             if self.sum_abs is self.max_abs:
+                lst_prp = self.prp_vec
                 theta = self._scatter()
                 self._detect(theta, self.pos_vec[n_step+1])
                 # New random optical depth and zero integrated path length
@@ -173,10 +172,10 @@ class Scatter:
             phi = phi + np.pi
         return np.array([r, theta, phi])
 
-    def _detect(self, theta, pos_vec):
+    def _detect(self, theta_p, pos_vec):
         """Calculate weights for scattering and absorption paths at current scatter order.
         Inputs
-            theta : float
+            theta_p : float
                 Phase function angle 0 <= theta <= pi.
             pos_vec : float, array-like
                 Position vector of scattering event.
@@ -188,9 +187,10 @@ class Scatter:
                                         self._cell[1], 
                                         self._cell[2]+1:])
         ## Wilf: which molecule's phase function do we use below?
-        P = self.grid.molecules[0].phase_func(theta) # phase function probability
-        self.weights[1].append(np.exp(-detect_path)*P) # scattering weight
-        self.weights[0].append(np.exp(-self.sum_abs)) # absorption weight
+        w_0     = self.grid.sca_grid[tuple(self._cell)]/self.grid.sum_grid[tuple(self._cell)]
+        P       = self.grid.molecules[0].phase_func(theta_p) # phase function probability
+        self.weights[1].append(np.exp(-detect_path)*P*w_0) # path to detector weights
+        self.weights[0].append(np.exp(-self.sum_abs))
 
     def _scatter(self):
         """Scatter the photon from a molecule following some phase function."""
@@ -231,25 +231,33 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # Invoke 100 instances of 'Scatter' on the grid and plot.
+n_photons = 100
 scatters = []
 nl = 'No scattering'
-for i in range(50):
-    scatters.append(Scatter(gridA))
-    scatters[i].propagate()
-    p = scatters[i].intens_p
-    points = scatters[i].pos_vec.T
-    if p == "no weights":
-        ax.plot(points[0], points[1], points[2], c='red', label=nl)
+sum_I_p = 0
+start_time = time.time()
+for i in range(n_photons):
+    scatt = Scatter(gridA)
+    scatt.propagate()
+    scatters.append(scatt)
+
+    I_p = scatt.intens_p
+    points = scatt.pos_vec.T
+    if I_p == "no weights":
+        #ax.plot(points[0], points[1], points[2], c='red', label=nl)
         nl = '_nolegend_'
     else:
-        ax.plot(points[0], points[1], points[2], c='blue')
+        #ax.plot(points[0], points[1], points[2], c='blue')
+        sum_I_p += I_p
+print("--- %s seconds ---" % (time.time() - start_time))
+print("Intensity is: {0:5.4f} x Initial Intensity".format(sum_I_p/n_photons))
+
 ax.set_xlim(0, gridA.grid_size[0])
 ax.set_ylim(0, gridA.grid_size[1])
 ax.set_zlim(0, gridA.grid_size[2])
 ax.set_zlabel('Atmospheric Depth (arb. units)')
 ax.invert_zaxis()
-plt.legend()
-plt.savefig('traces2.png')
-print("--- %s seconds ---" % (time.time() - start_time))
+plt.legend(loc='upper right')
 plt.show()
+plt.savefig('traces2.png')
 
