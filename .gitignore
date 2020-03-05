@@ -3,7 +3,8 @@
 ./test.py
 ./~*
 *.vscode*
-*.vscode/
+./.vscode/*
 *.jpg
 *.pdf
 *.DS_Store
+./playing.py
