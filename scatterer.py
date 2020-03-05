@@ -135,7 +135,7 @@ class Scatter:
                 self._scatter()
         #Lara: want to store an aborption weight after each scatter order. 
         # this is the proability that this path has been traversed by a photon before absorption.
-        self.w_abs_order = np.exp(-stop_len*beta_sca) #stop_len or test_len ??
+        self.w_abs_order = np.exp(-stop_len*beta_sca) #stop_len or test_len ?? Want this length to be length of path traversed only in this order - NOT from zero.
         self.w_abs += self.w_abs_order # we want to work out w_abs_order for each scattering order and then add this to the running propagation
         # (only for absoprtion not scattering weight).
     
@@ -178,8 +178,8 @@ class Scatter:
         P = phase_func(theta_, phi_)
         theta_d = 0 ## this is the angle of the incoming radiation beam to the detector. since we're assuming up-down/left-right propagation, for now set to 0.
         z_length =    # cartesian distance from this scatter order to the detector along z-axis.
-        beta_sca_to_det =   #sum of beta_sca_j for molecules j in cells travered to det. Assume homog. let beta_sca_j=0.01 then z_length determines no. of cells.
-        beta_abs_to_det =   #sum of beta_abs_j for molecules j in cells travered to det. Assume homog. let beta_abs_j=0.01 (?) then z_length determines no. of cells.
+        beta_sca_to_det =  f(z_length) #sum of beta_sca_j for molecules j in cells travered to det. Assume homog. let beta_sca_j=0.01 then z_length determines no. of cells.
+        beta_abs_to_det =  g(z_length) #sum of beta_abs_j for molecules j in cells travered to det. Assume homog. let beta_abs_j=0.01 (?) then z_length determines no. of cells.
 
         w_sca = P*np.exp(-z_length*(beta_abs_to_det + beta_sca_to_det))/np.cos(theta_d) 
 
