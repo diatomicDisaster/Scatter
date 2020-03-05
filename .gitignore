@@ -2,3 +2,8 @@
 *.swo
 ./test.py
 ./~*
+*.vscode*
+*.vscode/
+*.jpg
+*.pdf
+*.DS_Store

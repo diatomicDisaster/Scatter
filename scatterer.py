@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import time
+start_time = time.time()
+
 
 # Possibly needs to become an inherited class to
 # allow for different phase functions. Need to think about this.
@@ -74,7 +77,7 @@ class Scatter:
         """
         self.grid = grid
 
-    def propagate(self, max_step=999, rand_seed=None):
+    def propagate(self, max_step=10000, rand_seed=None): #changed max step from 999 to 10000
         """Propagate a photon through the grid.
         
         Inputs
@@ -92,7 +95,7 @@ class Scatter:
         self.pos_vec     = np.full((max_step+1, 3), np.nan)
         self.pos_vec[0]  = np.append(rand[0], 0.) * self.grid.grid_size
         self.prp_vec     = self._pol_to_cart(np.insert(rand[1]*np.array([.25, 2.])*np.pi,  0, 1.))
-        self.max_tau     = -np.log(1 - self._rand.uniform()) # integrated path length
+        self.max_tau     = -np.log(1 - self._rand.uniform()) # integrated path length. LARA: need to scale second term in log by 1/beta_sca, which is a function of the cell!! :)
         self.sum_tau     = 0.
         
         self.left_grid = False
@@ -114,11 +117,11 @@ class Scatter:
                     # shortest positive intercept distance is exit point
                     if 0. < test_len < stop_len:
                         stop_len = test_len
-            beta_ext   = self.grid.abs_grid[tuple(self._cell)]
-            self.sum_tau += stop_len*beta_ext
+            beta_sca   = self.grid.abs_grid[tuple(self._cell)]
+            self.sum_tau += stop_len*beta_sca
             # check whether max_tau is reached along this path
             if self.sum_tau >= self.max_tau:
-                stop_len = (self.sum_tau - self.max_tau)/beta_ext
+                stop_len = (self.sum_tau - self.max_tau)/beta_sca
                 self.sum_tau = self.max_tau
             self.pos_vec[n_step + 1] = self.pos_vec[n_step] + stop_len*self.prp_vec
             if self.sum_tau is self.max_tau:
@@ -181,9 +184,9 @@ gridA = Grid(grid_size=(100,100,100))
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-# Perform 100 scatter instances on the grid and plot
+# Perform 100 scatter instances on the grid and plot. Lara: you mean 100 photons not scattering orders??
 scatters = []
-for i in range(100):
+for i in range(1000):
     scatters.append(Scatter(gridA))
     scatters[i].propagate()
     points = scatters[i].pos_vec.T
@@ -192,4 +195,6 @@ ax.set_xlim(0, gridA.grid_size[0])
 ax.set_ylim(0, gridA.grid_size[1])
 ax.set_zlim(0, gridA.grid_size[2])
 plt.savefig('traces2.png')
+print("--- %s seconds ---" % (time.time() - start_time))
 plt.show()
+
