@@ -8,17 +8,17 @@ start_time = time.time()
 # Possibly needs to become an inherited class to
 # allow for different phase functions. Need to think about this.
 class Molecule:
-    def __init__(self, name="no name", phase_SD=np.pi/4):
+    def __init__(self, name="no name", phase_g=0.5):
         """A class to define molecules with different width phase functions
         
         Inputs
         name : str
             A name for the molecule, default 'no name'.
-        phase_SD : float
+        phase_g : float
             Standard deviation (radians) of the molecule's phase function.
         """
         self.name = name
-        self.phase_SD = phase_SD
+        self.phase_g = phase_g
 
     def phase_func(self):
         """Gaussian scattering phase function.
@@ -30,7 +30,7 @@ class Molecule:
                 A random polar angle phi from a uniform
                 distribution in the range [0, 2*pi].
         """
-        theta = np.abs(np.random.normal(loc=0.0, scale=self.phase_SD))
+        theta = np.abs(np.random.normal(loc=0.0, scale=self.phase_g))
         phi = np.random.uniform()*2*np.pi
         return theta, phi
 
