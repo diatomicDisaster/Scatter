@@ -2,9 +2,9 @@
 *.swo
 ./test.py
 ./~*
-*.vscode*
+./*.vscode*
 ./.vscode/*
-*.jpg
-*.pdf
-*.DS_Store
+./*.jpg
+./*.pdf
+./.DS_Store
 ./playing.py
