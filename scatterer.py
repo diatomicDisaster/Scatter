@@ -42,7 +42,7 @@ class Molecule:
         Returns
             A(z) : float
                 The relative abundance at height z. """
-        return np.exp(-z)
+        return 0.1 #np.exp(-z) 
 
 class Grid:
     def __init__(self, grid_size=(100,100,100), molecules=['arb']):
@@ -88,6 +88,10 @@ class Scatter:
                 Used for initial position and tau value.
                 
         """
+        #Lara: should we add beta_sca param to the arguments for this funciton? for now we will take a homogeneous approach and use 
+        # beta_sca_i = 0.01 for each molecule type i. then beta_sca for a cell is the sum of these over the number of types, lets assume 
+        # ten types of molecule and the same in every cell. then beta_sca = 0.1
+        beta_sca = 0.1
         self._max_step   = max_step
         self._rand       = np.random.RandomState(rand_seed)
         
@@ -95,7 +99,7 @@ class Scatter:
         self.pos_vec     = np.full((max_step+1, 3), np.nan)
         self.pos_vec[0]  = np.append(rand[0], 0.) * self.grid.grid_size
         self.prp_vec     = self._pol_to_cart(np.insert(rand[1]*np.array([.25, 2.])*np.pi,  0, 1.))
-        self.max_tau     = -np.log(1 - self._rand.uniform()) # integrated path length. LARA: need to scale second term in log by 1/beta_sca, which is a function of the cell!! :)
+        self.max_tau     = -np.log(1 - (self._rand.uniform())/beta_sca) # integrated path length. LARA: need to scale second term in log by 1/beta_sca, which is a function of the cell!! :)
         self.sum_tau     = 0.
         
         self.left_grid = False
@@ -117,7 +121,7 @@ class Scatter:
                     # shortest positive intercept distance is exit point
                     if 0. < test_len < stop_len:
                         stop_len = test_len
-            beta_sca   = self.grid.abs_grid[tuple(self._cell)]
+            #beta_sca   = self.grid.abs_grid[tuple(self._cell)]
             self.sum_tau += stop_len*beta_sca
             # check whether max_tau is reached along this path
             if self.sum_tau >= self.max_tau:
@@ -125,7 +129,15 @@ class Scatter:
                 self.sum_tau = self.max_tau
             self.pos_vec[n_step + 1] = self.pos_vec[n_step] + stop_len*self.prp_vec
             if self.sum_tau is self.max_tau:
+
+            
+
                 self._scatter()
+        #Lara: want to store an aborption weight after each scatter order. 
+        # this is the proability that this path has been traversed by a photon before absorption.
+        self.w_abs_order = np.exp(-stop_len*beta_sca) #stop_len or test_len ??
+        self.w_abs += self.w_abs_order # we want to work out w_abs_order for each scattering order and then add this to the running propagation
+        # (only for absoprtion not scattering weight).
     
     def _pol_to_cart(self, pol_vec):
         """Convert vector from polar (r, theta phi) to Cartesian (x, y, z)"""
@@ -160,6 +172,23 @@ class Scatter:
         new_prp = np.dot(Rz, np.dot(Ry, new_prp_))
         self.prp_vec = new_prp
         self.sum_tau = 0.
+        
+        ## This is the probability of no scatter+absorption along the path traversed from this 
+        ## point up until the detector.
+        P = phase_func(theta_, phi_)
+        theta_d = 0 ## this is the angle of the incoming radiation beam to the detector. since we're assuming up-down/left-right propagation, for now set to 0.
+        z_length =    # cartesian distance from this scatter order to the detector along z-axis.
+        beta_sca_to_det =   #sum of beta_sca_j for molecules j in cells travered to det. Assume homog. let beta_sca_j=0.01 then z_length determines no. of cells.
+        beta_abs_to_det =   #sum of beta_abs_j for molecules j in cells travered to det. Assume homog. let beta_abs_j=0.01 (?) then z_length determines no. of cells.
+
+        w_sca = P*np.exp(-z_length*(beta_abs_to_det + beta_sca_to_det))/np.cos(theta_d) 
+
+        # finally to work out intensity contribution for one photon, at each scattering order we take product of weights
+        N_p = # number of photons so argument of range in "for i in range"
+        I_photon = sum_over_orders{w_sca*w_abs}
+        I = (1/N_p)*sum_over_photons{I_photon} # gives intensity averaged over photons for one wavelength.
+
+
         return self
 
 # A dictionary of molecules
