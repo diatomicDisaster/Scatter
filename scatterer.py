@@ -213,7 +213,7 @@ moleculeDict = {
     "arb": Molecule(name = "arbitrary") # arbitrary molecules
     }
 # Define a 100 x 100 x 100 grid with default molecules
-gridA = Grid(grid_size=(100,100,100))
+gridA = Grid(grid_size=(50,50,100))
 
 ## For plotting the grid of absorption values
 # fig = plt.figure()
@@ -244,10 +244,10 @@ for i in range(n_photons):
     I_p = scatt.intens_p
     points = scatt.pos_vec.T
     if I_p == "no weights":
-        #ax.plot(points[0], points[1], points[2], c='red', label=nl)
+        ax.plot(points[0], points[1], points[2], c='red', label=nl)
         nl = '_nolegend_'
     else:
-        #ax.plot(points[0], points[1], points[2], c='blue')
+        ax.plot(points[0], points[1], points[2], c='blue')
         sum_I_p += I_p
 print("--- %s seconds ---" % (time.time() - start_time))
 print("Intensity is: {0:5.4f} x Initial Intensity".format(sum_I_p/n_photons))
