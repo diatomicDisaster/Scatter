@@ -109,7 +109,7 @@ class Scatter:
         ##       sense. That function is only defined for beta_scat>rho, so generates
         ##       infinite path lengths in many cases.
         # Initialise random optical depth integrated path length for first step
-        self.max_abs     = -np.log(1 - self._rand.uniform()) 
+        self.max_sca     = -np.log(1 - self._rand.uniform()) 
         self.sum_abs     = 0.
         
         self.left_grid = False
@@ -133,17 +133,17 @@ class Scatter:
                         stop_len = test_len
             beta_abs   = self.grid.abs_grid[tuple(self._cell)]
             self.sum_abs += stop_len*beta_abs
-            # check whether max_abs is reached along this path
-            if self.sum_abs >= self.max_abs:
-                stop_len = (self.sum_abs - self.max_abs)/beta_abs
-                self.sum_abs = self.max_abs
+            # check whether max_sca is reached along this path
+            if self.sum_abs >= self.max_sca:
+                stop_len = (self.sum_abs - self.max_sca)/beta_abs
+                self.sum_abs = self.max_sca
             self.pos_vec[n_step + 1] = self.pos_vec[n_step] + stop_len*self.prp_vec
-            if self.sum_abs is self.max_abs:
+            if self.sum_abs is self.max_sca:
                 lst_prp = self.prp_vec
                 theta = self._scatter()
                 self._detect(theta, self.pos_vec[n_step+1])
                 # New random optical depth and zero integrated path length
-                self.max_abs = -np.log(1 - self._rand.uniform())
+                self.max_sca = -np.log(1 - self._rand.uniform())
                 self.sum_abs = 0.
         ## Wilf: Currently we get values of I_p > 1, is this right?
         ##       Maybe there needs to be some form of normalisation somewhere,
@@ -231,7 +231,7 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # Invoke 100 instances of 'Scatter' on the grid and plot.
-n_photons = 100
+n_photons = 1000
 scatters = []
 nl = 'No scattering'
 sum_I_p = 0
